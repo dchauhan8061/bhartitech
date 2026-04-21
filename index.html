@@ -639,17 +639,18 @@ footer{padding:2rem 4rem;border-top:1px solid var(--border);display:flex;align-i
       </div>
     </div>
     <div class="rv d2">
-      <div class="cform">
+      <div class="cform" id="contactForm">
         <div class="frow">
-          <div class="field"><label>Name</label><input type="text" placeholder="Your full name"/></div>
-          <div class="field"><label>Phone</label><input type="tel" placeholder="+91 98xxx xxxxx"/></div>
+          <div class="field"><label>Name</label><input type="text" name="name" placeholder="Your full name" required/></div>
+          <div class="field"><label>Phone</label><input type="tel" name="phone" placeholder="+91 98xxx xxxxx"/></div>
         </div>
-        <div class="field"><label>Email</label><input type="email" placeholder="you@company.com"/></div>
+        <div class="field"><label>Email</label><input type="email" name="email" placeholder="you@company.com" required/></div>
         <div class="field"><label>Service Required</label>
-          <select><option value="">— Select Service —</option><option>CCTV Installation</option><option>Cyber Security</option><option>Desktop / IT Support</option><option>AMC Contract</option><option>24/7 Call Support</option><option>Network Solutions</option></select>
+          <select name="service"><option value="">— Select Service —</option><option>CCTV Installation</option><option>Cyber Security</option><option>Desktop / IT Support</option><option>AMC Contract</option><option>24/7 Call Support</option><option>Network Solutions</option></select>
         </div>
-        <div class="field"><label>Message</label><textarea placeholder="Describe your requirements..."></textarea></div>
-        <button class="f-btn">SEND MESSAGE ▶</button>
+        <div class="field"><label>Message</label><textarea name="message" placeholder="Describe your requirements..."></textarea></div>
+        <button class="f-btn" id="submitBtn">SEND MESSAGE ▶</button>
+        <div id="formMsg" style="display:none;margin-top:1rem;padding:.8rem 1rem;border:1px solid var(--g);color:var(--g);font-size:.78rem;letter-spacing:.12em;"></div>
       </div>
     </div>
   </div>
@@ -796,7 +797,48 @@ document.addEventListener('scroll',()=>{
       setTimeout(()=>el.style.filter='',80);
     });
   }
-});
+// ── FORMSPREE CONTACT FORM ──
+const form=document.getElementById('contactForm');
+const submitBtn=document.getElementById('submitBtn');
+const formMsg=document.getElementById('formMsg');
+if(form){
+  submitBtn.addEventListener('click',async(e)=>{
+    e.preventDefault();
+    const name=form.querySelector('[name="name"]').value.trim();
+    const email=form.querySelector('[name="email"]').value.trim();
+    if(!name||!email){
+      formMsg.style.display='block';
+      formMsg.style.borderColor='var(--r)';
+      formMsg.style.color='var(--r)';
+      formMsg.textContent='> ERROR: Name and Email are required.';
+      return;
+    }
+    submitBtn.textContent='SENDING...';
+    submitBtn.disabled=true;
+    const data=new FormData();
+    form.querySelectorAll('[name]').forEach(el=>data.append(el.name,el.value));
+    try{
+      const res=await fetch('https://formspree.io/f/xvzdbwbb',{method:'POST',body:data,headers:{Accept:'application/json'}});
+      if(res.ok){
+        formMsg.style.display='block';
+        formMsg.style.borderColor='var(--g)';
+        formMsg.style.color='var(--g)';
+        formMsg.textContent='> MESSAGE SENT SUCCESSFULLY ✓ We will contact you soon!';
+        form.querySelectorAll('input,textarea,select').forEach(el=>el.value='');
+        submitBtn.textContent='SENT ✓';
+      } else {
+        throw new Error('Failed');
+      }
+    } catch {
+      formMsg.style.display='block';
+      formMsg.style.borderColor='var(--r)';
+      formMsg.style.color='var(--r)';
+      formMsg.textContent='> ERROR: Failed to send. Please call us directly.';
+      submitBtn.textContent='SEND MESSAGE ▶';
+      submitBtn.disabled=false;
+    }
+  });
+}
 </script>
 </body>
 </html>
