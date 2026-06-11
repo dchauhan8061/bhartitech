@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BhartiTech — Cyber Security & IT Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --r:#ff0033;
+  --r2:#cc0022;
+  --r-glow:rgba(255,0,51,0.4);
+  --r-dim:rgba(255,0,51,0.12);
+  --g:#00ff41;
+  --g-glow:rgba(0,255,65,0.3);
+  --cyan:#00ffff;
+  --yellow:#ffe000;
+  --dark:#05000a;
+  --dark2:#0a0010;
+  --dark3:#0f0018;
+  --dark4:#140020;
+  --text:#e0d0ff;
+  --text-dim:#6a5080;
+  --border:rgba(255,0,51,0.2);
+  --border2:rgba(0,255,65,0.15);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--dark);color:var(--text);font-family:'Share Tech Mono',monospace;overflow-x:hidden;cursor:none;}
+
+/* ── CUSTOM CURSOR ── */
+#cur{width:16px;height:16px;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
+#cur::before,#cur::after{content:'';position:absolute;}
+#cur::before{width:16px;height:2px;background:var(--r);top:7px;left:0;box-shadow:0 0 8px var(--r);}
+#cur::after{width:2px;height:16px;background:var(--r);top:0;left:7px;box-shadow:0 0 8px var(--r);}
+#cur-ring{width:40px;height:40px;border:1px solid var(--r);position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);opacity:.5;transition:transform .15s;}
+
+/* ── CANVAS BG ── */
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.12;pointer-events:none;}
+
+/* ── SCANLINES ── */
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(255,0,51,.018) 3px,rgba(255,0,51,.018) 4px);pointer-events:none;z-index:9990;}
+
+/* ── VIGNETTE ── */
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 80% at 50% 50%,transparent 40%,rgba(5,0,10,.85) 100%);pointer-events:none;z-index:9989;}
+
+/* ── DATA STREAM LINES ── */
+#dataStream{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.07;}
+
+/* ── BOOT SCREEN ── */
+#boot{position:fixed;inset:0;background:#05000a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;transition:opacity .6s ease;}
+#boot.hide{opacity:0;pointer-events:none;}
+.boot-logo{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:#fff;letter-spacing:.15em;}
+.boot-logo span{color:var(--r);text-shadow:0 0 30px var(--r);}
+.boot-bar-wrap{width:280px;height:2px;background:rgba(255,0,51,.15);position:relative;overflow:hidden;}
+.boot-bar{height:100%;width:0;background:var(--r);box-shadow:0 0 12px var(--r);animation:bootLoad 1.8s ease forwards;}
+@keyframes bootLoad{0%{width:0}60%{width:75%}85%{width:90%}100%{width:100%}}
+.boot-text{font-size:.65rem;letter-spacing:.25em;color:var(--text-dim);animation:bootTxt 1.8s steps(1) forwards;}
+@keyframes bootTxt{
+  0%{content:'INITIALIZING...'} 20%{color:var(--r)}
+  40%{color:var(--text-dim)} 80%{color:var(--g)}
+}
+.boot-lines{display:flex;flex-direction:column;gap:.3rem;width:280px;}
+.bl{font-size:.6rem;letter-spacing:.15em;color:var(--text-dim);opacity:0;}
+.bl:nth-child(1){animation:blShow .2s .3s forwards;}
+.bl:nth-child(2){animation:blShow .2s .6s forwards;}
+.bl:nth-child(3){animation:blShow .2s .9s forwards;}
+.bl:nth-child(4){animation:blShow .2s 1.2s forwards;}
+.bl:nth-child(5){animation:blShow .2s 1.4s forwards;color:var(--g);}
+@keyframes blShow{to{opacity:1;}}
+
+/* ── TYPING CURSOR ── */
+.type-wrap{display:inline;}
+.type-cursor{display:inline-block;width:2px;height:1em;background:var(--r);vertical-align:text-bottom;animation:blink .7s step-end infinite;margin-left:2px;box-shadow:0 0 6px var(--r);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── FLOATING CODE BITS ── */
+.float-code{position:absolute;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:rgba(255,0,51,.2);pointer-events:none;animation:floatUp linear infinite;}
+@keyframes floatUp{0%{transform:translateY(0);opacity:.3}100%{transform:translateY(-100vh);opacity:0}}
+
+/* ── NEON PULSE ON STATS ── */
+@keyframes neonPulse{0%,100%{box-shadow:0 0 5px var(--r),inset 0 0 5px rgba(255,0,51,.05)}50%{box-shadow:0 0 20px var(--r),0 0 40px rgba(255,0,51,.2),inset 0 0 10px rgba(255,0,51,.08)}}
+.hs-item:nth-child(2){animation:neonPulse 3s ease-in-out infinite;}
+
+/* ── SECTION SLIDE IN FROM SIDES ── */
+.rv-left{opacity:0;transform:translateX(-40px);transition:opacity .8s ease,transform .8s ease;}
+.rv-left.on{opacity:1;transform:translateX(0);}
+.rv-right{opacity:0;transform:translateX(40px);transition:opacity .8s ease,transform .8s ease;}
+.rv-right.on{opacity:1;transform:translateX(0);}
+.rv-scale{opacity:0;transform:scale(.92);transition:opacity .7s ease,transform .7s ease;}
+.rv-scale.on{opacity:1;transform:scale(1);}
+
+/* ── CARD HOVER LIFT ── */
+.svc,.plan,.testi,.ps{transition:background .3s,transform .25s,box-shadow .25s;}
+.svc:hover,.plan:hover,.testi:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(255,0,51,.12);}
+.ps:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(255,0,51,.1);}
+
+/* ── HERO TITLE FLICKER ── */
+@keyframes flicker{0%,96%,100%{opacity:1}97%{opacity:.7}98%{opacity:1}99%{opacity:.5}}
+.ht-red{animation:flicker 6s ease-in-out infinite;}
+
+/* ── ANIMATED BORDER ON CONTACT FORM ── */
+@keyframes borderRun{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.cform{position:relative;}
+.cform::before{content:'';position:absolute;inset:-1px;background:linear-gradient(90deg,var(--r),transparent,var(--r),transparent);background-size:300% 300%;animation:borderRun 4s linear infinite;z-index:-1;opacity:.35;}
+
+/* ── GLOWING SECTION TAGS ── */
+.sec-eyebrow .se-bracket{animation:bracketGlow 2s ease-in-out infinite alternate;}
+@keyframes bracketGlow{from{text-shadow:0 0 5px var(--r)}to{text-shadow:0 0 20px var(--r),0 0 40px rgba(255,0,51,.4)}}
+
+/* ── THREAT METER PULSE ── */
+.tm-val{animation:valPulse 2s ease-in-out infinite alternate;}
+@keyframes valPulse{from{text-shadow:0 0 5px var(--g)}to{text-shadow:0 0 20px var(--g),0 0 35px rgba(0,255,65,.4)}}
+
+/* ── GLITCH ── */
+@keyframes g1{0%,92%,100%{clip-path:inset(0 0 100% 0);transform:translate(0)}93%{clip-path:inset(10% 0 70% 0);transform:translate(-3px,0)}95%{clip-path:inset(40% 0 40% 0);transform:translate(3px,0)}97%{clip-path:inset(70% 0 15% 0);transform:translate(-2px,0)}99%{clip-path:inset(85% 0 5% 0);transform:translate(2px,0)}}
+@keyframes g2{0%,92%,100%{clip-path:inset(0 0 100% 0);transform:translate(0)}93%{clip-path:inset(60% 0 20% 0);transform:translate(3px,0)}95%{clip-path:inset(20% 0 60% 0);transform:translate(-3px,0)}97%{clip-path:inset(5% 0 85% 0);transform:translate(2px,0)}99%{clip-path:inset(80% 0 10% 0);transform:translate(-2px,0)}}
+.glitch{position:relative;display:inline-block;}
+.glitch::before{content:attr(data-text);position:absolute;inset:0;color:var(--r);animation:g1 4s infinite;opacity:.7;}
+.glitch::after{content:attr(data-text);position:absolute;inset:0;color:var(--cyan);animation:g2 4s infinite;opacity:.7;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:600;display:flex;align-items:center;justify-content:space-between;padding:1rem 4rem;background:rgba(5,0,10,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);animation:slideDown .6s ease both;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+.logo{font-family:'Orbitron',monospace;font-weight:900;font-size:1.25rem;letter-spacing:.08em;display:flex;align-items:center;gap:.4rem;}
+.logo-icon{color:var(--r);text-shadow:0 0 20px var(--r);}
+.logo-main{color:#fff;}
+.logo-tag{color:var(--r);font-size:.6rem;letter-spacing:.2em;margin-left:.3rem;border:1px solid var(--r);padding:.1rem .4rem;vertical-align:middle;text-shadow:0 0 8px var(--r);}
+
+.nav-links{display:flex;gap:2.5rem;list-style:none;}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;transition:all .2s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--r);transform:scaleX(0);transition:transform .2s;box-shadow:0 0 6px var(--r);}
+.nav-links a:hover{color:var(--r);}
+.nav-links a:hover::after{transform:scaleX(1);}
+
+.nav-cta{background:transparent;border:1px solid var(--r);color:var(--r);padding:.5rem 1.4rem;font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:.18em;cursor:none;position:relative;overflow:hidden;transition:color .3s;text-shadow:0 0 8px var(--r);box-shadow:0 0 15px rgba(255,0,51,.15);}
+.nav-cta::before{content:'';position:absolute;inset:0;background:var(--r);transform:translateX(-101%);transition:transform .3s ease;}
+.nav-cta:hover{color:#000;}
+.nav-cta:hover::before{transform:translateX(0);}
+.nav-cta span{position:relative;z-index:1;}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:7rem 4rem 5rem;position:relative;z-index:1;}
+
+/* ── 3D GLOBE (Three.js) ── */
+#hero3d{position:absolute;top:0;right:-8%;width:60%;height:100%;z-index:-1;pointer-events:none;opacity:0;animation:h3dIn 1.5s 1s ease forwards;}
+@keyframes h3dIn{to{opacity:1;}}
+#hero3d canvas{display:block;width:100%!important;height:100%!important;}
+@media(max-width:900px){
+  #hero3d{right:0;width:100%;opacity:0;animation:h3dInM 1.5s 1s ease forwards;}
+  @keyframes h3dInM{to{opacity:.45;}}
+}
+
+/* hex grid overlay */
+.hero-hex{position:absolute;inset:0;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V17L28 0l28 17v33z' fill='none' stroke='%23ff0033' stroke-width='1'/%3E%3C/svg%3E");background-size:56px 100px;pointer-events:none;}
+
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.8rem;margin-bottom:1.8rem;animation:fadeUp .6s .2s ease both;}
+.eye-line{width:30px;height:1px;background:var(--r);box-shadow:0 0 6px var(--r);}
+.eye-text{font-size:.65rem;letter-spacing:.3em;color:var(--r);text-transform:uppercase;}
+.eye-badge{background:var(--r);color:#000;font-size:.55rem;font-weight:700;letter-spacing:.15em;padding:.2rem .6rem;font-family:'Orbitron',monospace;}
+
+.hero-title{font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(2.4rem,6vw,5.8rem);line-height:1;letter-spacing:.02em;animation:fadeUp .7s .35s ease both;margin-bottom:.5rem;}
+.ht-white{color:#fff;display:block;}
+.ht-red{color:var(--r);display:block;text-shadow:0 0 40px var(--r-glow),0 0 80px rgba(255,0,51,.2);}
+.ht-outline{-webkit-text-stroke:1px rgba(255,0,51,.5);color:transparent;display:block;}
+
+.hero-desc{margin-top:1.6rem;font-family:'Rajdhani',sans-serif;font-size:1.05rem;line-height:1.75;color:var(--text-dim);max-width:540px;animation:fadeUp .7s .5s ease both;}
+.hero-desc strong{color:var(--r);font-weight:600;}
+
+/* threat meter */
+.threat-meter{margin-top:2rem;display:flex;align-items:center;gap:1.2rem;animation:fadeUp .7s .6s ease both;}
+.tm-label{font-size:.62rem;letter-spacing:.2em;color:var(--text-dim);white-space:nowrap;}
+.tm-bar{flex:1;height:4px;background:rgba(255,0,51,.1);position:relative;max-width:200px;}
+.tm-fill{height:100%;background:linear-gradient(90deg,var(--g),var(--yellow),var(--r));width:0;animation:fillBar 2s 1.5s ease forwards;box-shadow:0 0 8px var(--r);}
+@keyframes fillBar{to{width:92%}}
+.tm-val{font-family:'Orbitron',monospace;font-size:.75rem;color:var(--g);font-weight:700;}
+
+.hero-btns{margin-top:2.5rem;display:flex;gap:1.2rem;flex-wrap:wrap;animation:fadeUp .7s .65s ease both;}
+.btn-red{background:var(--r);color:#000;border:none;padding:.9rem 2.2rem;font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.15em;cursor:none;transition:all .3s;box-shadow:0 0 30px var(--r-glow);position:relative;overflow:hidden;text-transform:uppercase;}
+.btn-red::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,.2);border-radius:50%;transform:translate(-50%,-50%);transition:width .4s,height .4s;}
+.btn-red:hover::before{width:300px;height:300px;}
+.btn-red:hover{transform:translateY(-2px);box-shadow:0 0 50px var(--r),0 0 80px rgba(255,0,51,.3);}
+.btn-ghost-red{background:transparent;border:1px solid rgba(255,0,51,.5);color:var(--r);padding:.9rem 2.2rem;font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:.15em;cursor:none;transition:all .3s;text-transform:uppercase;}
+.btn-ghost-red:hover{border-color:var(--r);background:rgba(255,0,51,.08);box-shadow:0 0 25px rgba(255,0,51,.2);}
+
+/* stats */
+.hero-stats{margin-top:4rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);animation:fadeUp .7s .85s ease both;}
+.hs-item{background:var(--dark2);padding:1.2rem 1.5rem;transition:background .3s;position:relative;overflow:hidden;}
+.hs-item::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--r);transform:scaleX(0);transform-origin:left;transition:transform .4s;box-shadow:0 0 8px var(--r);}
+.hs-item:hover{background:var(--dark3);}
+.hs-item:hover::before{transform:scaleX(1);}
+.hs-num{font-family:'Orbitron',monospace;font-size:1.8rem;font-weight:900;color:var(--r);text-shadow:0 0 15px var(--r-glow);line-height:1;}
+.hs-lbl{font-size:.58rem;letter-spacing:.2em;color:var(--text-dim);margin-top:.4rem;text-transform:uppercase;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--r),transparent);opacity:.3;position:relative;z-index:2;}
+
+/* ── SECTIONS ── */
+.sec{padding:6rem 4rem;position:relative;z-index:2;}
+.sec-bg-alt{background:var(--dark2);}
+
+.sec-eyebrow{display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem;}
+.se-bracket{color:var(--r);font-family:'Orbitron',monospace;font-size:.9rem;}
+.se-text{font-size:.62rem;letter-spacing:.3em;color:var(--text-dim);text-transform:uppercase;}
+
+.sec-title{font-family:'Orbitron',monospace;font-weight:700;font-size:clamp(1.6rem,3.2vw,2.8rem);color:#fff;line-height:1.15;margin-bottom:3rem;}
+.sec-title span{color:var(--r);text-shadow:0 0 20px var(--r-glow);}
+
+/* ── SERVICES ── */
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,0,51,.1);border:1px solid var(--border);}
+.svc{background:var(--dark2);padding:2.5rem 2.2rem;position:relative;overflow:hidden;transition:background .3s;cursor:none;}
+.svc:nth-child(1){grid-column:span 2;}
+.svc-scan{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,0,51,.04),transparent);animation:scanSvc 4s ease-in-out infinite;}
+@keyframes scanSvc{0%{left:-60%}100%{left:120%}}
+.svc:hover{background:var(--dark3);}
+.svc-corner{position:absolute;top:0;left:0;width:20px;height:20px;border-top:1px solid var(--r);border-left:1px solid var(--r);opacity:0;transition:opacity .3s;}
+.svc-corner2{position:absolute;bottom:0;right:0;width:20px;height:20px;border-bottom:1px solid var(--r);border-right:1px solid var(--r);opacity:0;transition:opacity .3s;}
+.svc:hover .svc-corner,.svc:hover .svc-corner2{opacity:1;}
+.svc-num{font-family:'Orbitron',monospace;font-size:4.5rem;font-weight:900;position:absolute;bottom:.5rem;right:1.5rem;color:rgba(255,0,51,.05);line-height:1;transition:color .3s;}
+.svc:hover .svc-num{color:rgba(255,0,51,.1);}
+.svc-ico{width:44px;height:44px;border:1px solid rgba(255,0,51,.3);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:1.5rem;transition:all .3s;position:relative;}
+.svc:hover .svc-ico{border-color:var(--r);box-shadow:0 0 20px rgba(255,0,51,.2),inset 0 0 20px rgba(255,0,51,.05);}
+.svc-name{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:700;color:#fff;margin-bottom:.7rem;letter-spacing:.04em;}
+.svc-desc{font-family:'Rajdhani',sans-serif;font-size:.95rem;line-height:1.7;color:var(--text-dim);}
+.svc-link{display:inline-flex;align-items:center;gap:.4rem;margin-top:1.2rem;font-size:.65rem;letter-spacing:.18em;color:rgba(255,0,51,.5);transition:color .3s;text-transform:uppercase;}
+.svc:hover .svc-link{color:var(--r);}
+
+/* ── PRICING ── */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,0,51,.1);border:1px solid var(--border);}
+.plan{background:var(--dark2);padding:2.6rem 2.2rem;position:relative;overflow:hidden;transition:background .3s;cursor:none;}
+.plan:hover,.plan.hot{background:var(--dark3);}
+.plan-topbar{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--r2),var(--r));box-shadow:0 0 12px var(--r);transform:scaleX(0);transform-origin:left;transition:transform .4s;}
+.plan.hot .plan-topbar{transform:scaleX(1);}
+.plan:hover .plan-topbar{transform:scaleX(1);}
+.plan-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--r);color:#000;font-family:'Orbitron',monospace;font-size:.55rem;font-weight:700;letter-spacing:.15em;padding:.3rem .8rem;margin-bottom:1rem;}
+.plan-name{font-family:'Orbitron',monospace;font-size:1.2rem;font-weight:900;color:#fff;margin-bottom:.5rem;}
+.plan-desc{font-family:'Rajdhani',sans-serif;font-size:.95rem;line-height:1.6;color:var(--text-dim);margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,0,51,.1);}
+.plan-price{font-family:'Orbitron',monospace;font-size:2.4rem;font-weight:900;color:var(--r);text-shadow:0 0 20px var(--r-glow);line-height:1;}
+.plan-price sub{font-size:.82rem;font-weight:400;color:var(--text-dim);font-family:'Share Tech Mono',monospace;}
+.plan-cycle{font-size:.62rem;letter-spacing:.15em;color:var(--text-dim);margin:.4rem 0 1.5rem;text-transform:uppercase;}
+.plan-feats{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.8rem;}
+.pf{font-family:'Rajdhani',sans-serif;font-size:.95rem;color:var(--text-dim);display:flex;align-items:center;gap:.7rem;}
+.pf-yes::before{content:'[+]';color:var(--g);font-family:'Share Tech Mono',monospace;font-size:.65rem;}
+.pf-no{opacity:.3;}
+.pf-no::before{content:'[-]';color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:.65rem;}
+.plan-cta{width:100%;background:transparent;border:1px solid rgba(255,0,51,.3);color:var(--text-dim);padding:.85rem;font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:.15em;cursor:none;transition:all .3s;text-transform:uppercase;position:relative;overflow:hidden;}
+.plan-cta::before{content:'';position:absolute;inset:0;background:var(--r);transform:translateX(-101%);transition:transform .3s;}
+.plan-cta:hover,.plan.hot .plan-cta{color:#000;border-color:var(--r);}
+.plan-cta:hover::before,.plan.hot .plan-cta::before{transform:translateX(0);}
+.plan-cta span{position:relative;z-index:1;}
+
+/* ── WHY ── */
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;}
+.radar-wrap{position:relative;width:100%;max-width:360px;}
+.radar-svg{width:100%;height:auto;display:block;}
+.why-checks{display:flex;flex-direction:column;gap:1rem;}
+.wc{display:flex;gap:1.1rem;align-items:flex-start;padding:1.3rem;border:1px solid rgba(255,0,51,.12);background:var(--dark3);transition:all .3s;cursor:none;position:relative;overflow:hidden;}
+.wc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--r);transform:scaleY(0);transform-origin:top;transition:transform .3s;box-shadow:0 0 8px var(--r);}
+.wc:hover{border-color:rgba(255,0,51,.3);background:var(--dark4);}
+.wc:hover::before{transform:scaleY(1);}
+.wc-ico{color:var(--r);font-size:.8rem;font-family:'Orbitron',monospace;min-width:34px;padding:.3rem;border:1px solid rgba(255,0,51,.3);text-align:center;margin-top:1px;}
+.wc-title{font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;color:#fff;margin-bottom:.3rem;letter-spacing:.06em;}
+.wc-desc{font-family:'Rajdhani',sans-serif;font-size:.95rem;line-height:1.6;color:var(--text-dim);}
+
+/* ── PROCESS ── */
+.proc-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,0,51,.1);border:1px solid var(--border);margin-top:3rem;}
+.ps{background:var(--dark2);padding:2.2rem 1.8rem;position:relative;transition:background .3s;cursor:none;overflow:hidden;}
+.ps:hover{background:var(--dark3);}
+.ps-num{font-family:'Orbitron',monospace;font-size:3.5rem;font-weight:900;color:rgba(255,0,51,.07);line-height:1;margin-bottom:1rem;transition:all .3s;}
+.ps:hover .ps-num{color:rgba(255,0,51,.18);text-shadow:0 0 20px rgba(255,0,51,.3);}
+.ps-bar{width:24px;height:1px;background:var(--r);margin-bottom:.9rem;box-shadow:0 0 6px var(--r);transition:width .3s,box-shadow .3s;}
+.ps:hover .ps-bar{width:44px;box-shadow:0 0 12px var(--r);}
+.ps-t{font-family:'Orbitron',monospace;font-size:.82rem;font-weight:700;color:var(--r);margin-bottom:.5rem;letter-spacing:.06em;}
+.ps-d{font-family:'Rajdhani',sans-serif;font-size:.95rem;line-height:1.65;color:var(--text-dim);}
+
+/* ── TESTIMONIALS ── */
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,0,51,.1);border:1px solid var(--border);margin-top:3rem;}
+.testi{background:var(--dark3);padding:2.2rem 1.8rem;transition:background .3s;cursor:none;position:relative;overflow:hidden;}
+.testi:hover{background:var(--dark4);}
+.testi-quote{font-size:3rem;color:rgba(255,0,51,.15);font-family:'Orbitron',monospace;line-height:1;margin-bottom:.8rem;}
+.testi-text{font-family:'Rajdhani',sans-serif;font-size:1rem;line-height:1.75;color:var(--text-dim);margin-bottom:1.4rem;}
+.testi-div{width:24px;height:1px;background:var(--r);margin-bottom:1rem;box-shadow:0 0 6px var(--r);}
+.testi-name{font-family:'Orbitron',monospace;font-size:.78rem;font-weight:700;color:#fff;}
+.testi-role{font-size:.65rem;letter-spacing:.12em;color:var(--text-dim);text-transform:uppercase;margin-top:.2rem;}
+.testi-stars{position:absolute;top:1.5rem;right:1.5rem;color:var(--r);font-size:.7rem;letter-spacing:.1em;text-shadow:0 0 8px var(--r);}
+
+/* ── MAP ── */
+.map-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;}
+.map-wrap{position:relative;border:1px solid var(--border);box-shadow:0 0 40px rgba(255,0,51,.08);}
+.map-wrap::before{content:'';position:absolute;inset:-1px;border:1px solid transparent;background:linear-gradient(135deg,var(--r),transparent,var(--r)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:destination-out;mask-composite:exclude;pointer-events:none;}
+.map-wrap iframe{width:100%;height:360px;border:none;display:block;filter:grayscale(1) invert(1) contrast(.75) brightness(.6) hue-rotate(290deg) saturate(3);}
+.map-badge{position:absolute;top:.8rem;left:.8rem;background:rgba(5,0,10,.92);border:1px solid var(--border);padding:.4rem .9rem;font-size:.62rem;letter-spacing:.2em;color:var(--r);z-index:2;}
+.map-details{display:flex;flex-direction:column;gap:1rem;}
+.md-title{font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:.3rem;line-height:1.2;}
+.md-title span{color:var(--r);text-shadow:0 0 15px var(--r-glow);}
+.md-sub{font-family:'Rajdhani',sans-serif;font-size:1rem;color:var(--text-dim);margin-bottom:.5rem;line-height:1.65;}
+.md-item{display:flex;align-items:center;gap:.9rem;padding:.9rem 1.1rem;border:1px solid rgba(255,0,51,.12);background:var(--dark3);transition:all .3s;cursor:none;}
+.md-item:hover{border-color:rgba(255,0,51,.35);background:var(--dark4);}
+.md-ico{font-size:.9rem;width:26px;text-align:center;}
+.md-lbl{font-size:.6rem;letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;}
+.md-val{font-family:'Rajdhani',sans-serif;font-size:1rem;color:var(--text);}
+.md-btn{display:inline-flex;align-items:center;gap:.5rem;background:transparent;border:1px solid var(--r);color:var(--r);padding:.8rem 1.8rem;font-family:'Orbitron',monospace;font-size:.68rem;letter-spacing:.15em;cursor:none;transition:all .3s;text-decoration:none;text-transform:uppercase;margin-top:.5rem;position:relative;overflow:hidden;}
+.md-btn::before{content:'';position:absolute;inset:0;background:var(--r);transform:translateX(-101%);transition:transform .3s;}
+.md-btn:hover{color:#000;}
+.md-btn:hover::before{transform:translateX(0);}
+.md-btn span{position:relative;z-index:1;}
+
+/* ── CONTACT ── */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;}
+.c-title{font-family:'Orbitron',monospace;font-weight:700;font-size:clamp(1.5rem,3vw,2.5rem);color:#fff;line-height:1.15;margin-bottom:.8rem;}
+.c-title span{color:var(--r);text-shadow:0 0 20px var(--r-glow);}
+.c-sub{font-family:'Rajdhani',sans-serif;font-size:1rem;line-height:1.75;color:var(--text-dim);margin-bottom:2rem;}
+.c-infos{display:flex;flex-direction:column;gap:.8rem;}
+.ci{display:flex;align-items:center;gap:.9rem;padding:.9rem 1.1rem;border:1px solid rgba(255,0,51,.12);background:var(--dark3);transition:all .3s;cursor:none;}
+.ci:hover{border-color:rgba(255,0,51,.35);}
+.ci-ico{font-size:.9rem;width:26px;text-align:center;}
+.ci-lbl{font-size:.6rem;letter-spacing:.18em;color:var(--text-dim);text-transform:uppercase;}
+.ci-val{font-family:'Rajdhani',sans-serif;font-size:1rem;color:var(--text);}
+
+/* form */
+.cform{display:flex;flex-direction:column;gap:.9rem;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+.field{display:flex;flex-direction:column;gap:.4rem;}
+.field label{font-size:.6rem;letter-spacing:.22em;color:var(--text-dim);text-transform:uppercase;}
+.field label::before{content:'> ';}
+.field input,.field textarea,.field select{background:rgba(255,0,51,.03);border:1px solid rgba(255,0,51,.15);color:var(--text);padding:.82rem 1rem;font-family:'Share Tech Mono',monospace;font-size:.82rem;outline:none;transition:border-color .3s,box-shadow .3s;cursor:none;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--r);box-shadow:0 0 0 2px rgba(255,0,51,.07),0 0 20px rgba(255,0,51,.1);}
+.field textarea{resize:vertical;min-height:95px;}
+.field select option{background:#0a0010;}
+.f-btn{background:var(--r);border:none;color:#000;padding:.9rem 2rem;font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.18em;cursor:none;transition:all .3s;text-transform:uppercase;box-shadow:0 0 25px var(--r-glow);margin-top:.3rem;}
+.f-btn:hover{box-shadow:0 0 50px var(--r),0 0 80px rgba(255,0,51,.3);transform:translateY(-2px);}
+
+/* ── FOOTER ── */
+footer{padding:2rem 4rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;background:rgba(5,0,10,.97);}
+.f-logo{font-family:'Orbitron',monospace;font-weight:900;font-size:1rem;color:#fff;}
+.f-logo span{color:var(--r);text-shadow:0 0 15px var(--r-glow);}
+.f-copy{font-size:.65rem;color:var(--text-dim);letter-spacing:.12em;}
+.f-links{display:flex;gap:2rem;}
+.f-links a{font-size:.65rem;letter-spacing:.15em;color:var(--text-dim);text-decoration:none;transition:color .3s;text-transform:uppercase;}
+.f-links a:hover{color:var(--r);}
+
+/* ── WHATSAPP ── */
+.wa-float{position:fixed;bottom:2rem;right:2rem;z-index:999;display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;}
+.wa-tip{background:var(--dark3);border:1px solid rgba(37,211,102,.35);color:var(--text);font-size:.68rem;padding:.4rem .9rem;white-space:nowrap;opacity:0;transform:translateX(8px);transition:all .3s;pointer-events:none;font-family:'Share Tech Mono',monospace;}
+.wa-float:hover .wa-tip{opacity:1;transform:translateX(0);}
+.wa-btn{width:52px;height:52px;background:#25d366;border:1px solid rgba(37,211,102,.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px rgba(37,211,102,.4);cursor:none;transition:all .3s;text-decoration:none;position:relative;}
+.wa-btn:hover{transform:scale(1.1);box-shadow:0 0 40px rgba(37,211,102,.7);}
+.wa-btn svg{width:26px;height:26px;fill:#fff;}
+.wa-ping{position:absolute;top:-2px;right:-2px;width:12px;height:12px;background:#25d366;border-radius:50%;animation:waPing 2s ease-in-out infinite;}
+@keyframes waPing{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(2.2);opacity:0}}
+
+/* ── REVEAL ── */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .75s ease,transform .75s ease;}
+.rv.on{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  nav{padding:.9rem 1.2rem;}
+  .nav-links{display:none;}
+  .hero{padding:5.5rem 1.2rem 3rem;}
+  .hero-stats{grid-template-columns:1fr 1fr;}
+  .sec,.sec-bg-alt{padding:4.5rem 1.2rem;}
+  .svc-grid,.pricing-grid,.testi-grid{grid-template-columns:1fr;}
+  .svc:nth-child(1){grid-column:span 1;}
+  .proc-steps{grid-template-columns:1fr 1fr;}
+  .why-grid,.map-grid,.contact-grid{grid-template-columns:1fr;gap:2.5rem;}
+  .radar-wrap{max-width:260px;margin:0 auto;}
+  .frow{grid-template-columns:1fr;}
+  footer{flex-direction:column;gap:1rem;text-align:center;padding:1.5rem 1.2rem;}
+  .wa-float{bottom:1rem;right:1rem;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="dataStream"></canvas>
+
+<!-- BOOT SCREEN -->
+<div id="boot">
+  <div class="boot-logo">BHARTI<span>TECH</span></div>
+  <div class="boot-bar-wrap"><div class="boot-bar"></div></div>
+  <div class="boot-lines">
+    <div class="bl">> LOADING SECURITY PROTOCOLS...</div>
+    <div class="bl">> ENCRYPTING CONNECTION... [AES-256]</div>
+    <div class="bl">> FIREWALL STATUS: <span style="color:var(--g)">ACTIVE</span></div>
+    <div class="bl">> THREAT SCAN: <span style="color:var(--g)">CLEAR</span></div>
+    <div class="bl">> SYSTEM READY ✓</div>
+  </div>
+</div>
+<div id="cur"></div>
+<div id="cur-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <span class="logo-icon">⬡</span>
+    <span class="logo-main">BHARTI</span><span style="color:var(--r);text-shadow:0 0 15px var(--r)">TECH</span>
+    <span class="logo-tag">SECURE</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#why">About</a></li>
+    <li><a href="#location">Location</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})"><span>[ GET QUOTE ]</span></button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-hex"></div>
+  <div id="hero3d"></div>
+
+  <div class="hero-eyebrow">
+    <div class="eye-line"></div>
+    <span class="eye-text">Valsad, Gujarat — Est. 2014</span>
+    <span class="eye-badge">ONLINE</span>
+  </div>
+
+  <h1 class="hero-title">
+    <span class="ht-white">BHARTITECH</span>
+    <span class="ht-red glitch" data-text="CYBER DEFENSE">CYBER DEFENSE</span>
+    <span class="ht-outline">&amp; IT SOLUTIONS</span>
+  </h1>
+
+  <p class="hero-desc">
+    <strong>BhartiTech</strong> delivers enterprise-grade IT infrastructure, CCTV surveillance, cybersecurity, AMC contracts &amp; 24/7 support — all under one roof in Valsad, Gujarat.<span class="type-cursor"></span>
+  </p>
+
+  <div class="threat-meter">
+    <span class="tm-label">NETWORK SECURITY LEVEL</span>
+    <div class="tm-bar"><div class="tm-fill"></div></div>
+    <span class="tm-val">SECURED</span>
+  </div>
+
+  <div class="hero-btns">
+    <button class="btn-red" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">GET FREE QUOTE</button>
+    <button class="btn-ghost-red" onclick="document.getElementById('services').scrollIntoView({behavior:'smooth'})">EXPLORE SERVICES ▶</button>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hs-item"><div class="hs-num" id="s1">500+</div><div class="hs-lbl">Clients Secured</div></div>
+    <div class="hs-item"><div class="hs-num">24/7</div><div class="hs-lbl">Support Active</div></div>
+    <div class="hs-item"><div class="hs-num" id="s3">10+</div><div class="hs-lbl">Years Online</div></div>
+    <div class="hs-item"><div class="hs-num">99%</div><div class="hs-lbl">Uptime Rate</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SERVICES -->
+<section class="sec sec-bg-alt" id="services">
+  <div class="sec-eyebrow rv"><span class="se-bracket">//</span><span class="se-text">What We Deploy</span></div>
+  <div class="sec-title rv d1">Full-Stack <span>Security &amp; IT</span><br/>Solutions</div>
+  <div class="svc-grid rv d2">
+    <div class="svc"><div class="svc-scan"></div><div class="svc-corner"></div><div class="svc-corner2"></div><div class="svc-num">01</div><div class="svc-ico">📷</div><div class="svc-name">CCTV Installation</div><div class="svc-desc">HD/4K surveillance systems for homes, offices &amp; warehouses. Remote monitoring, motion alerts, cloud backup. Full installation by certified techs.</div><div class="svc-link">DEPLOY NOW ▶</div></div>
+    <div class="svc"><div class="svc-scan"></div><div class="svc-corner"></div><div class="svc-corner2"></div><div class="svc-num">02</div><div class="svc-ico">🔒</div><div class="svc-name">Cyber Security</div><div class="svc-desc">Firewall setup, threat monitoring, network protection &amp; data breach prevention for your entire IT infrastructure.</div><div class="svc-link">ACTIVATE ▶</div></div>
+    <div class="svc"><div class="svc-scan"></div><div class="svc-corner"></div><div class="svc-corner2"></div><div class="svc-num">03</div><div class="svc-ico">🖥️</div><div class="svc-name">Desktop &amp; IT Support</div><div class="svc-desc">Hardware repair, OS troubleshooting, software setup &amp; full desktop management for businesses of all sizes.</div><div class="svc-link">RUN SUPPORT ▶</div></div>
+    <div class="svc"><div class="svc-scan"></div><div class="svc-corner"></div><div class="svc-corner2"></div><div class="svc-num">04</div><div class="svc-ico">📋</div><div class="svc-name">AMC Contracts</div><div class="svc-desc">Annual Maintenance Contracts with defined SLAs, scheduled servicing &amp; priority on-site response. Zero downtime.</div><div class="svc-link">SIGN CONTRACT ▶</div></div>
+    <div class="svc"><div class="svc-scan"></div><div class="svc-corner"></div><div class="svc-corner2"></div><div class="svc-num">05</div><div class="svc-ico">📞</div><div class="svc-name">24/7 Call Support</div><div class="svc-desc">Round-the-clock remote &amp; on-site assistance. Critical IT emergencies resolved within hours — any time, any day.</div><div class="svc-link">CALL NOW ▶</div></div>
+    <div class="svc"><div class="svc-scan"></div><div class="svc-corner"></div><div class="svc-corner2"></div><div class="svc-num">06</div><div class="svc-ico">🌐</div><div class="svc-name">Network Solutions</div><div class="svc-desc">LAN/WAN, WiFi deployment, VPN configuration &amp; scalable network infrastructure for growing businesses.</div><div class="svc-link">CONFIGURE ▶</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRICING -->
+<section class="sec" id="pricing">
+  <div class="sec-eyebrow rv"><span class="se-bracket">//</span><span class="se-text">Transparent Pricing</span></div>
+  <div class="sec-title rv d1">AMC <span>Packages</span> —<br/>No Hidden Charges</div>
+  <div class="pricing-grid rv d2">
+    <div class="plan">
+      <div class="plan-topbar"></div>
+      <div class="plan-name">BASIC</div>
+      <div class="plan-desc">For small offices &amp; shops with essential IT needs.</div>
+      <div class="plan-price">₹4,999<sub>/mo</sub></div>
+      <div class="plan-cycle">Annual Contract · Billed Yearly</div>
+      <div class="plan-feats">
+        <div class="pf pf-yes">2 Desktop / Laptop Support</div>
+        <div class="pf pf-yes">CCTV Check (Quarterly)</div>
+        <div class="pf pf-yes">Remote Support (Business Hours)</div>
+        <div class="pf pf-yes">Software Troubleshooting</div>
+        <div class="pf pf-yes">Email &amp; Phone Support</div>
+        <div class="pf pf-no">On-Site Emergency Response</div>
+        <div class="pf pf-no">Cybersecurity Monitoring</div>
+      </div>
+      <button class="plan-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})"><span>GET STARTED ▶</span></button>
+    </div>
+    <div class="plan hot">
+      <div class="plan-topbar"></div>
+      <div class="plan-badge">★ MOST POPULAR</div>
+      <div class="plan-name">PROFESSIONAL</div>
+      <div class="plan-desc">For growing businesses needing reliable full-stack IT support.</div>
+      <div class="plan-price">₹9,999<sub>/mo</sub></div>
+      <div class="plan-cycle">Annual Contract · Billed Yearly</div>
+      <div class="plan-feats">
+        <div class="pf pf-yes">Up to 10 Desktops / Laptops</div>
+        <div class="pf pf-yes">CCTV Full Check (Monthly)</div>
+        <div class="pf pf-yes">24/7 Remote Support</div>
+        <div class="pf pf-yes">On-Site Response (4hr SLA)</div>
+        <div class="pf pf-yes">Network &amp; WiFi Management</div>
+        <div class="pf pf-yes">Firewall &amp; Basic CyberSec</div>
+        <div class="pf pf-yes">Quarterly Health Report</div>
+        <div class="pf pf-no">Dedicated Account Manager</div>
+      </div>
+      <button class="plan-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})"><span>GET STARTED ▶</span></button>
+    </div>
+    <div class="plan">
+      <div class="plan-topbar"></div>
+      <div class="plan-name">ENTERPRISE</div>
+      <div class="plan-desc">Full-scale managed IT for large offices &amp; multi-branch businesses.</div>
+      <div class="plan-price">Custom<sub> pricing</sub></div>
+      <div class="plan-cycle">Tailored To Requirements</div>
+      <div class="plan-feats">
+        <div class="pf pf-yes">Unlimited Devices</div>
+        <div class="pf pf-yes">Full CCTV Fleet Management</div>
+        <div class="pf pf-yes">24/7 Priority (2hr SLA)</div>
+        <div class="pf pf-yes">Advanced CyberSec Suite</div>
+        <div class="pf pf-yes">Server &amp; Cloud Management</div>
+        <div class="pf pf-yes">Dedicated Account Manager</div>
+        <div class="pf pf-yes">Monthly On-Site Visits</div>
+        <div class="pf pf-yes">Custom SLA &amp; Reporting</div>
+      </div>
+      <button class="plan-cta" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})"><span>CONTACT US ▶</span></button>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHY US -->
+<section class="sec sec-bg-alt" id="why">
+  <div class="why-grid">
+    <div class="rv">
+      <div class="sec-eyebrow"><span class="se-bracket">//</span><span class="se-text">System Stats</span></div>
+      <div class="sec-title" style="margin-bottom:1.5rem">Why Choose<br/><span>BhartiTech?</span></div>
+      <!-- Animated Radar SVG -->
+      <div class="radar-wrap">
+        <svg class="radar-svg" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="rg" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ff0033" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#ff0033" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <!-- rings -->
+          <circle cx="150" cy="150" r="120" fill="none" stroke="rgba(255,0,51,0.15)" stroke-width="1"/>
+          <circle cx="150" cy="150" r="90" fill="none" stroke="rgba(255,0,51,0.12)" stroke-width="1"/>
+          <circle cx="150" cy="150" r="60" fill="none" stroke="rgba(255,0,51,0.1)" stroke-width="1"/>
+          <circle cx="150" cy="150" r="30" fill="none" stroke="rgba(255,0,51,0.15)" stroke-width="1"/>
+          <!-- crosshairs -->
+          <line x1="30" y1="150" x2="270" y2="150" stroke="rgba(255,0,51,0.12)" stroke-width="1"/>
+          <line x1="150" y1="30" x2="150" y2="270" stroke="rgba(255,0,51,0.12)" stroke-width="1"/>
+          <line x1="65" y1="65" x2="235" y2="235" stroke="rgba(255,0,51,0.07)" stroke-width="1"/>
+          <line x1="235" y1="65" x2="65" y2="235" stroke="rgba(255,0,51,0.07)" stroke-width="1"/>
+          <!-- sweep -->
+          <g style="transform-origin:150px 150px;animation:radarSweep 3s linear infinite">
+            <path d="M150,150 L150,30 A120,120 0 0,1 254,210 Z" fill="url(#rg)" opacity="0.6"/>
+            <line x1="150" y1="150" x2="150" y2="30" stroke="#ff0033" stroke-width="1.5" opacity="0.8"/>
+          </g>
+          <!-- blips -->
+          <circle cx="195" cy="105" r="4" fill="#ff0033" opacity="0.9"><animate attributeName="opacity" values="0.9;0.2;0.9" dur="1.5s" repeatCount="indefinite"/></circle>
+          <circle cx="120" cy="190" r="3" fill="#00ff41" opacity="0.8"><animate attributeName="opacity" values="0.8;0.1;0.8" dur="2s" repeatCount="indefinite"/></circle>
+          <circle cx="210" cy="170" r="2.5" fill="#00ffff" opacity="0.7"><animate attributeName="opacity" values="0.7;0.1;0.7" dur="2.5s" repeatCount="indefinite"/></circle>
+          <!-- center dot -->
+          <circle cx="150" cy="150" r="4" fill="#ff0033"><animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/></circle>
+          <style>@keyframes radarSweep{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
+        </svg>
+      </div>
+    </div>
+    <div class="why-checks rv d2">
+      <div class="wc"><div class="wc-ico">01</div><div><div class="wc-title">CERTIFIED ENGINEERS</div><div class="wc-desc">Industry-certified technicians with field experience across IT, retail, manufacturing and more sectors.</div></div></div>
+      <div class="wc"><div class="wc-ico">02</div><div><div class="wc-title">RAPID RESPONSE</div><div class="wc-desc">On-site within 4 hours, remote resolution under 30 minutes. No waiting, no excuses, no downtime.</div></div></div>
+      <div class="wc"><div class="wc-ico">03</div><div><div class="wc-title">TRANSPARENT PRICING</div><div class="wc-desc">Clear AMC packages with defined SLAs. No hidden charges. You always know what you're paying for.</div></div></div>
+      <div class="wc"><div class="wc-ico">04</div><div><div class="wc-title">END-TO-END OWNERSHIP</div><div class="wc-desc">Consultation to installation to support — fully managed so you can focus entirely on your business.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROCESS -->
+<section class="sec" id="process">
+  <div class="sec-eyebrow rv"><span class="se-bracket">//</span><span class="se-text">Execution Protocol</span></div>
+  <div class="sec-title rv d1">How It <span>Works</span></div>
+  <div class="proc-steps rv d2">
+    <div class="ps"><div class="ps-num">01</div><div class="ps-bar"></div><div class="ps-t">SCAN</div><div class="ps-d">We assess your site, understand requirements &amp; design a custom solution within your budget.</div></div>
+    <div class="ps"><div class="ps-num">02</div><div class="ps-bar"></div><div class="ps-t">PLAN</div><div class="ps-d">Transparent quote with timelines, equipment specs and all service terms. No surprises.</div></div>
+    <div class="ps"><div class="ps-num">03</div><div class="ps-bar"></div><div class="ps-t">DEPLOY</div><div class="ps-d">Certified team installs cleanly with zero disruption to your daily operations.</div></div>
+    <div class="ps"><div class="ps-num">04</div><div class="ps-bar"></div><div class="ps-t">MONITOR</div><div class="ps-d">AMC clients get priority response, quarterly checks &amp; dedicated account management.</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TESTIMONIALS -->
+<section class="sec sec-bg-alt">
+  <div class="sec-eyebrow rv"><span class="se-bracket">//</span><span class="se-text">Client Feedback Log</span></div>
+  <div class="sec-title rv d1"><span>Verified</span> Client Reviews</div>
+  <div class="testi-grid rv d2">
+    <div class="testi"><div class="testi-stars">★★★★★</div><div class="testi-quote">"</div><div class="testi-text">Excellent CCTV installation. Professional, clean &amp; finished ahead of schedule. Remote access works flawlessly.</div><div class="testi-div"></div><div class="testi-name">Rajesh Sharma</div><div class="testi-role">Owner, RS Enterprises · Valsad</div></div>
+    <div class="testi"><div class="testi-stars">★★★★★</div><div class="testi-quote">"</div><div class="testi-text">AMC contract has been a game changer. Zero downtime in 2 years. The 24/7 support team always picks up.</div><div class="testi-div"></div><div class="testi-name">Priya Mehta</div><div class="testi-role">IT Manager, Bright Logistics</div></div>
+    <div class="testi"><div class="testi-stars">★★★★★</div><div class="testi-quote">"</div><div class="testi-text">Cybersecurity setup was thorough and professional. Explained everything clearly. Network has never been more secure.</div><div class="testi-div"></div><div class="testi-name">Vikram Patel</div><div class="testi-role">Director, VP Solutions · Gujarat</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MAP -->
+<section class="sec" id="location">
+  <div class="sec-eyebrow rv"><span class="se-bracket">//</span><span class="se-text">GPS Coordinates</span></div>
+  <div class="sec-title rv d1">Find Us in <span>Valsad, Gujarat</span></div>
+  <div class="map-grid rv d2">
+    <div class="map-wrap">
+      <div class="map-badge">📍 BhartiTech HQ — Valsad</div>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3738.0!2d72.9289!3d20.5992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be0d0a4b3b3b3b3%3A0x4953b934c3f5f3b5!2sValsad%2C%20Gujarat!5e0!3m2!1sen!2sin!4v1234567890" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+    <div class="map-details">
+      <div class="md-title">BhartiTech <span>Headquarters</span></div>
+      <div class="md-sub">Walk in for a free consultation or call ahead. Our engineers are ready for on-site assessment anytime.</div>
+      <div class="md-item"><div class="md-ico">📍</div><div><div class="md-lbl">Address</div><div class="md-val">Valsad, Gujarat — 396001</div></div></div>
+      <div class="md-item"><div class="md-ico">📞</div><div><div class="md-lbl">Phone</div><div class="md-val">+91 8511767920</div></div></div>
+      <div class="md-item"><div class="md-ico">🕐</div><div><div class="md-lbl">Working Hours</div><div class="md-val">Mon – Sat &nbsp;|&nbsp; 10:00 AM – 7:00 PM</div></div></div>
+      <a class="md-btn" href="https://maps.google.com/?q=Valsad,Gujarat" target="_blank"><span>OPEN IN GOOGLE MAPS ▶</span></a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section class="sec sec-bg-alt" id="contact">
+  <div class="contact-grid">
+    <div class="rv">
+      <div class="sec-eyebrow"><span class="se-bracket">//</span><span class="se-text">Initiate Contact</span></div>
+      <div class="c-title">Secure Your<br/><span>Business Today</span></div>
+      <p class="c-sub">Free site assessment for new clients. No obligation — just expert advice on what your business actually needs.</p>
+      <div class="c-infos">
+        <div class="ci"><div class="ci-ico">📞</div><div><div class="ci-lbl">Phone</div><div class="ci-val">+91 8511767920</div></div></div>
+        <div class="ci"><div class="ci-ico">✉️</div><div><div class="ci-lbl">Email</div><div class="ci-val">info@bhartitech.in</div></div></div>
+        <div class="ci"><div class="ci-ico">📍</div><div><div class="ci-lbl">Location</div><div class="ci-val">Valsad, Gujarat — 396001</div></div></div>
+        <div class="ci"><div class="ci-ico">🚨</div><div><div class="ci-lbl">Emergency</div><div class="ci-val">24/7 Support for AMC Clients</div></div></div>
+      </div>
+    </div>
+    <div class="rv d2">
+      <div class="cform" id="contactForm">
+        <div class="frow">
+          <div class="field"><label>Name</label><input type="text" name="name" placeholder="Your full name" required/></div>
+          <div class="field"><label>Phone</label><input type="tel" name="phone" placeholder="+91 98xxx xxxxx"/></div>
+        </div>
+        <div class="field"><label>Email</label><input type="email" name="email" placeholder="you@company.com" required/></div>
+        <div class="field"><label>Service Required</label>
+          <select name="service"><option value="">— Select Service —</option><option>CCTV Installation</option><option>Cyber Security</option><option>Desktop / IT Support</option><option>AMC Contract</option><option>24/7 Call Support</option><option>Network Solutions</option></select>
+        </div>
+        <div class="field"><label>Message</label><textarea name="message" placeholder="Describe your requirements..."></textarea></div>
+        <button class="f-btn" id="submitBtn">SEND MESSAGE ▶</button>
+        <div id="formMsg" style="display:none;margin-top:1rem;padding:.8rem 1rem;border:1px solid var(--g);color:var(--g);font-size:.78rem;letter-spacing:.12em;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">BHARTI<span>TECH</span></div>
+  <div class="f-copy">© 2026 BhartiTech · Valsad, Gujarat · All Rights Reserved</div>
+  <div class="f-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#contact">Contact</a></div>
+</footer>
+
+<!-- WHATSAPP -->
+<div class="wa-float">
+  <div class="wa-tip">// WhatsApp Us</div>
+  <a class="wa-btn" href="https://wa.me/918511767920?text=Hello%20BhartiTech%2C%20I%20would%20like%20to%20inquire%20about%20your%20IT%20%26%20Security%20services." target="_blank">
+    <div class="wa-ping"></div>
+    <svg viewBox="0 0 32 32"><path d="M16 2C8.268 2 2 8.268 2 16c0 2.496.651 4.84 1.789 6.877L2 30l7.352-1.766A13.94 13.94 0 0016 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.6a11.56 11.56 0 01-5.895-1.61l-.422-.252-4.365 1.05 1.082-4.252-.276-.436A11.527 11.527 0 014.4 16C4.4 9.592 9.592 4.4 16 4.4S27.6 9.592 27.6 16 22.408 27.6 16 27.6zm6.33-8.618c-.347-.174-2.055-1.013-2.374-1.129-.319-.116-.551-.174-.783.174-.232.347-.9 1.129-1.103 1.361-.203.232-.406.261-.753.087-.347-.174-1.464-.54-2.788-1.72-1.031-.92-1.726-2.055-1.929-2.402-.203-.347-.022-.535.152-.708.156-.155.347-.406.521-.609.174-.203.232-.347.347-.58.116-.232.058-.435-.029-.609-.087-.174-.783-1.887-1.073-2.584-.283-.678-.57-.586-.783-.597l-.666-.011a1.278 1.278 0 00-.927.435c-.319.347-1.217 1.188-1.217 2.896s1.246 3.358 1.42 3.59c.174.232 2.452 3.744 5.942 5.251.83.358 1.479.572 1.984.732.834.265 1.594.228 2.193.138.669-.1 2.055-.84 2.345-1.652.29-.812.29-1.508.203-1.652-.086-.145-.318-.232-.666-.406z"/></svg>
+  </a>
+</div>
+
+<script>
+// ── BOOT SCREEN ──
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('boot').classList.add('hide');
+    setTimeout(()=>document.getElementById('boot').remove(),700);
+  },2200);
+});
+
+// ── PARTICLE BG ──
+const cv=document.getElementById('bgCanvas'),cx=cv.getContext('2d');
+function rs(){cv.width=innerWidth;cv.height=innerHeight;}rs();
+window.addEventListener('resize',rs);
+const pts=Array.from({length:80},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.5+.5}));
+function drawBg(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  pts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>cv.width)p.vx*=-1;
+    if(p.y<0||p.y>cv.height)p.vy*=-1;
+    cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    cx.fillStyle='rgba(255,0,51,0.8)';cx.fill();
+  });
+  pts.forEach((a,i)=>pts.forEach((b,j)=>{
+    if(i>=j)return;
+    const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(d<120){cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x,b.y);cx.strokeStyle=`rgba(255,0,51,${(1-d/120)*.25})`;cx.lineWidth=.5;cx.stroke();}
+  }));
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+// ── DATA STREAM (vertical falling chars) ──
+const ds=document.getElementById('dataStream'),dc=ds.getContext('2d');
+function rds(){ds.width=innerWidth;ds.height=innerHeight;}rds();
+window.addEventListener('resize',rds);
+const dsChars='01アイウエオBYTEHACKSECUREDATAFF00330xFF</>[]{}';
+const dsCols=Math.floor(innerWidth/18);
+const dsDrops=Array(dsCols).fill(0).map(()=>Math.random()*-50);
+function drawDS(){
+  dc.fillStyle='rgba(5,0,10,0.06)';
+  dc.fillRect(0,0,ds.width,ds.height);
+  dc.font='11px Share Tech Mono, monospace';
+  dsDrops.forEach((y,i)=>{
+    const ch=dsChars[Math.floor(Math.random()*dsChars.length)];
+    const alpha=Math.random()>.85?0.9:0.25;
+    dc.fillStyle=`rgba(255,0,51,${alpha})`;
+    dc.fillText(ch,i*18,y*18);
+    if(y*18>ds.height&&Math.random()>.97)dsDrops[i]=0;
+    dsDrops[i]+=.5;
+  });
+}
+setInterval(drawDS,60);
+
+// ── FLOATING CODE BITS ──
+const codes=['0xFF','<script>','XSS','SQL','HASH','0x00','AES','RSA','NULL','PING','ROOT','SUDO','SSH','VPN','DMZ','IDS'];
+function spawnCode(){
+  const el=document.createElement('div');
+  el.className='float-code';
+  el.textContent=codes[Math.floor(Math.random()*codes.length)];
+  el.style.cssText=`left:${Math.random()*95}vw;bottom:-20px;animation-duration:${6+Math.random()*8}s;animation-delay:${Math.random()*2}s;font-size:${.5+Math.random()*.4}rem;`;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),(14+Math.random()*8)*1000);
+}
+setInterval(spawnCode,1200);
+for(let i=0;i<6;i++)setTimeout(spawnCode,i*400);
+
+// ── CURSOR ──
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animR(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animR);})();
+document.querySelectorAll('button,a,.svc,.wc,.ps,.testi,.ci,.plan,.md-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ring.style.transform='translate(-50%,-50%) scale(1.8)';ring.style.opacity='.8';ring.style.borderColor='#ff0033';});
+  el.addEventListener('mouseleave',()=>{ring.style.transform='translate(-50%,-50%) scale(1)';ring.style.opacity='.5';});
+});
+
+// ── SCROLL REVEAL (up + left + right + scale) ──
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('on');}),{threshold:.1});
+document.querySelectorAll('.rv,.rv-left,.rv-right,.rv-scale').forEach(el=>obs.observe(el));
+
+// ── COUNTERS ──
+let counted=false;
+const sObs=new IntersectionObserver(e=>{
+  if(e[0].isIntersecting&&!counted){
+    counted=true;
+    [[document.getElementById('s1'),500,'+'],[document.getElementById('s3'),10,'+']].forEach(([el,t,sfx])=>{
+      if(!el)return;let v=0;const inc=t/60;
+      const tm=setInterval(()=>{v=Math.min(v+inc,t);el.textContent=Math.floor(v)+sfx;if(v>=t)clearInterval(tm);},16);
+    });
+  }
+},{threshold:.5});
+const sb=document.querySelector('.hero-stats');if(sb)sObs.observe(sb);
+
+// ── TYPEWRITER for hero desc ──
+const heroDesc=document.querySelector('.hero-desc');
+if(heroDesc){
+  const fullText=heroDesc.innerHTML;
+  const cursor=heroDesc.querySelector('.type-cursor');
+  const textOnly='BhartiTech delivers enterprise-grade IT infrastructure, CCTV surveillance, cybersecurity, AMC contracts & 24/7 support — all under one roof in Valsad, Gujarat.';
+  heroDesc.innerHTML='<span class="type-cursor"></span>';
+  const tc=heroDesc.querySelector('.type-cursor');
+  let idx=0;
+  setTimeout(()=>{
+    const iv=setInterval(()=>{
+      if(idx<=textOnly.length){
+        heroDesc.innerHTML=textOnly.slice(0,idx)+'<span class="type-cursor"></span>';
+        idx++;
+      } else {
+        clearInterval(iv);
+        // wrap bhartitech in strong
+        heroDesc.innerHTML=heroDesc.innerHTML.replace('BhartiTech','<strong>BhartiTech</strong>');
+      }
+    },18);
+  },2600);
+}
+
+// ── GLITCH RANDOM TRIGGER on sections scroll ──
+document.addEventListener('scroll',()=>{
+  if(Math.random()>.95){
+    document.querySelectorAll('.glitch').forEach(el=>{
+      el.style.filter='blur(1px)';
+      setTimeout(()=>el.style.filter='',80);
+    });
+  }
+});
+
+// ── FORMSPREE CONTACT FORM ──
+const form=document.getElementById('contactForm');
+const submitBtn=document.getElementById('submitBtn');
+const formMsg=document.getElementById('formMsg');
+if(form){
+  submitBtn.addEventListener('click',async(e)=>{
+    e.preventDefault();
+    const name=form.querySelector('[name="name"]').value.trim();
+    const email=form.querySelector('[name="email"]').value.trim();
+    if(!name||!email){
+      formMsg.style.display='block';
+      formMsg.style.borderColor='var(--r)';
+      formMsg.style.color='var(--r)';
+      formMsg.textContent='> ERROR: Name and Email are required.';
+      return;
+    }
+    submitBtn.textContent='SENDING...';
+    submitBtn.disabled=true;
+    const data=new FormData();
+    form.querySelectorAll('[name]').forEach(el=>data.append(el.name,el.value));
+    try{
+      const res=await fetch('https://formspree.io/f/xvzdbwbb',{method:'POST',body:data,headers:{Accept:'application/json'}});
+      if(res.ok){
+        formMsg.style.display='block';
+        formMsg.style.borderColor='var(--g)';
+        formMsg.style.color='var(--g)';
+        formMsg.textContent='> MESSAGE SENT SUCCESSFULLY ✓ We will contact you soon!';
+        form.querySelectorAll('input,textarea,select').forEach(el=>el.value='');
+        submitBtn.textContent='SENT ✓';
+      } else {
+        throw new Error('Failed');
+      }
+    } catch {
+      formMsg.style.display='block';
+      formMsg.style.borderColor='var(--r)';
+      formMsg.style.color='var(--r)';
+      formMsg.textContent='> ERROR: Failed to send. Please call us directly.';
+      submitBtn.textContent='SEND MESSAGE ▶';
+      submitBtn.disabled=false;
+    }
+  });
+}
+</script>
+
+<!-- ── 3D CYBER GLOBE (Three.js) ── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const box=document.getElementById('hero3d');
+  if(!box||typeof THREE==='undefined')return;
+
+  const isMobile=innerWidth<900;
+  const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(55,box.clientWidth/box.clientHeight,0.1,100);
+  cam.position.z=6.2;
+
+  const renderer=new THREE.WebGLRenderer({alpha:true,antialias:!isMobile});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,isMobile?1.5:2));
+  renderer.setSize(box.clientWidth,box.clientHeight);
+  box.appendChild(renderer.domElement);
+
+  const globe=new THREE.Group();
+  scene.add(globe);
+
+  // Wireframe sphere (outer shell)
+  const wire=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(2.2,2),
+    new THREE.MeshBasicMaterial({color:0xff0033,wireframe:true,transparent:true,opacity:0.18})
+  );
+  globe.add(wire);
+
+  // Inner wireframe core
+  const core=new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.1,1),
+    new THREE.MeshBasicMaterial({color:0x00ff41,wireframe:true,transparent:true,opacity:0.22})
+  );
+  globe.add(core);
+
+  // Glowing node points on sphere surface
+  const N=isMobile?120:220;
+  const pos=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const t=Math.acos(2*Math.random()-1),p=Math.random()*Math.PI*2,r=2.2;
+    pos[i*3]=r*Math.sin(t)*Math.cos(p);
+    pos[i*3+1]=r*Math.sin(t)*Math.sin(p);
+    pos[i*3+2]=r*Math.cos(t);
+  }
+  const ptGeo=new THREE.BufferGeometry();
+  ptGeo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const nodes=new THREE.Points(ptGeo,new THREE.PointsMaterial({
+    color:0xff2244,size:0.055,transparent:true,opacity:0.9,
+    blending:THREE.AdditiveBlending,depthWrite:false
+  }));
+  globe.add(nodes);
+
+  // Connection lines between nearby nodes
+  const linePos=[];
+  for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+    const dx=pos[i*3]-pos[j*3],dy=pos[i*3+1]-pos[j*3+1],dz=pos[i*3+2]-pos[j*3+2];
+    if(dx*dx+dy*dy+dz*dz<0.95){
+      linePos.push(pos[i*3],pos[i*3+1],pos[i*3+2],pos[j*3],pos[j*3+1],pos[j*3+2]);
+    }
+  }
+  const lnGeo=new THREE.BufferGeometry();
+  lnGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(linePos),3));
+  globe.add(new THREE.LineSegments(lnGeo,new THREE.LineBasicMaterial({
+    color:0xff0033,transparent:true,opacity:0.25,
+    blending:THREE.AdditiveBlending,depthWrite:false
+  })));
+
+  // Orbit rings
+  function ring(radius,color,rx,rz,op){
+    const m=new THREE.Mesh(
+      new THREE.TorusGeometry(radius,0.012,8,120),
+      new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false})
+    );
+    m.rotation.x=rx;m.rotation.z=rz;
+    globe.add(m);return m;
+  }
+  const r1=ring(2.9,0xff0033,Math.PI/2.2,0.3,0.4);
+  const r2=ring(3.3,0x00ffff,Math.PI/1.8,-0.5,0.22);
+
+  // Orbiting satellite dots
+  const sats=[];
+  [[2.9,0xff0033],[3.3,0x00ffff]].forEach(([rad,col],k)=>{
+    const s=new THREE.Mesh(new THREE.SphereGeometry(0.05,8,8),
+      new THREE.MeshBasicMaterial({color:col}));
+    sats.push({mesh:s,rad:rad,speed:(k?-0.5:0.7),ang:Math.random()*6.28,ring:k?r2:r1});
+    globe.add(s);
+  });
+
+  // Mouse parallax
+  let mx=0,my=0,tx=0,ty=0;
+  if(!isMobile){
+    addEventListener('mousemove',e=>{
+      tx=(e.clientX/innerWidth-0.5)*0.6;
+      ty=(e.clientY/innerHeight-0.5)*0.4;
+    });
+  }
+
+  function onResize(){
+    const w=box.clientWidth,h=box.clientHeight;
+    cam.aspect=w/h;cam.updateProjectionMatrix();
+    renderer.setSize(w,h);
+  }
+  addEventListener('resize',onResize);
+
+  const clock=new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const t=clock.getElapsedTime();
+    globe.rotation.y=t*0.12;
+    core.rotation.y=-t*0.3;core.rotation.x=t*0.15;
+    mx+=(tx-mx)*0.04;my+=(ty-my)*0.04;
+    globe.rotation.x=0.15+my;
+    globe.position.x=mx*0.5;
+    nodes.material.opacity=0.7+Math.sin(t*2)*0.25;
+    sats.forEach(s=>{
+      s.ang+=s.speed*0.012;
+      const v=new THREE.Vector3(Math.cos(s.ang)*s.rad,0,Math.sin(s.ang)*s.rad);
+      v.applyEuler(new THREE.Euler(s.ring.rotation.x,0,s.ring.rotation.z));
+      s.mesh.position.copy(v);
+    });
+    renderer.render(scene,cam);
+  }
+  if(reduceMotion){renderer.render(scene,cam);}
+  else{animate();}
+})();
+</script>
+</body>
+</html>
